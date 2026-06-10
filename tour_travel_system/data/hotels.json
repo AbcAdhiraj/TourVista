@@ -1,0 +1,10 @@
+[
+    {
+        "hotel_id": "H001",
+        "hotel_name": "Grand Hotel",
+        "location": "Paris",
+        "room_type": "Deluxe",
+        "room_price": 200.0,
+        "available_rooms": 0
+    }
+]

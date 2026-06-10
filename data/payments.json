@@ -1,0 +1,16 @@
+[
+    {
+        "payment_id": "PAY001",
+        "amount": 1500.0,
+        "payment_mode": "Credit Card",
+        "payment_date": "2026-06-10 22:44:09",
+        "booking_id": "B001"
+    },
+    {
+        "payment_id": "PAY002",
+        "amount": 1500.0,
+        "payment_mode": "Credit Card",
+        "payment_date": "2026-06-10 22:44:09",
+        "booking_id": "B002"
+    }
+]

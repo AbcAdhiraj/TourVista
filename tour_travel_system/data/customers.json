@@ -1,0 +1,16 @@
+[
+    {
+        "person_id": "C001",
+        "name": "John Doe",
+        "email": "john@example.com",
+        "mobile_number": "1234567890",
+        "address": "123 Main St"
+    },
+    {
+        "person_id": "C002",
+        "name": "Jane Smith",
+        "email": "jane@example.com",
+        "mobile_number": "0987654321",
+        "address": "456 Oak St"
+    }
+]

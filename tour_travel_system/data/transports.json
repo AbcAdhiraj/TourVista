@@ -1,0 +1,10 @@
+[
+    {
+        "transport_id": "T001",
+        "transport_type": "Flight",
+        "source": "New York",
+        "destination": "Paris",
+        "fare": 800.0,
+        "available_seats": 0
+    }
+]

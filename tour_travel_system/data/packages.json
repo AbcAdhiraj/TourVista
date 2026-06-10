@@ -1,0 +1,11 @@
+[
+    {
+        "package_id": "P001",
+        "package_name": "Paris Getaway",
+        "destination": "Paris",
+        "duration": 5,
+        "package_price": 1500.0,
+        "hotel_id": "H001",
+        "transport_id": "T001"
+    }
+]

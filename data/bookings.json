@@ -1,0 +1,16 @@
+[
+    {
+        "booking_id": "B001",
+        "customer_id": "C001",
+        "package_id": "P001",
+        "booking_date": "2026-06-10 22:44:09",
+        "booking_status": "Cancelled"
+    },
+    {
+        "booking_id": "B002",
+        "customer_id": "C002",
+        "package_id": "P001",
+        "booking_date": "2026-06-10 22:44:09",
+        "booking_status": "Confirmed"
+    }
+]
