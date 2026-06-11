@@ -2,6 +2,24 @@ import sys
 from core.management import TravelManagementSystem
 from core.exceptions import TourTravelException
 
+def get_selection(prompt, options):
+    """Helper to display options as a numbered list and return the selected value."""
+    if not options:
+        return None
+    
+    print(f"\n{prompt}")
+    for i, option in enumerate(options, 1):
+        print(f"{i}. {option}")
+    
+    while True:
+        try:
+            choice = int(input(f"Enter choice (1-{len(options)}): "))
+            if 1 <= choice <= len(options):
+                return options[choice - 1]
+            print(f"Invalid choice. Please enter a number between 1 and {len(options)}.")
+        except ValueError:
+            print("Invalid input. Please enter a number.")
+
 def main_menu():
     system = TravelManagementSystem()
     system.load_data()
@@ -91,7 +109,16 @@ def package_menu(system):
         dest = input("Enter Destination: ")
         dur = int(input("Enter Duration (days): "))
         price = float(input("Enter Price: "))
-        system.create_package(pid, name, dest, dur, price)
+        
+        hotel_options = ["None"] + list(system.hotels.keys())
+        hid = get_selection("Select Hotel ID:", hotel_options)
+        hid = None if hid == "None" else hid
+        
+        transport_options = ["None"] + list(system.transports.keys())
+        tid = get_selection("Select Transport ID:", transport_options)
+        tid = None if tid == "None" else tid
+        
+        system.create_package(pid, name, dest, dur, price, hotel_id=hid, transport_id=tid)
     elif choice == '2':
         print("\nAvailable Packages:")
         for p in system.packages.values():
@@ -106,8 +133,19 @@ def booking_menu(system):
     choice = input("Enter choice: ")
     if choice == '1':
         bid = input("Enter Booking ID: ")
-        cid = input("Enter Customer ID: ")
-        pid = input("Enter Package ID: ")
+        
+        customer_options = list(system.customers.keys())
+        if not customer_options:
+            print("No registered customers found. Please register a customer first.")
+            return
+        cid = get_selection("Select Customer ID:", customer_options)
+        
+        package_options = list(system.packages.keys())
+        if not package_options:
+            print("No tour packages available. Please create a package first.")
+            return
+        pid = get_selection("Select Package ID:", package_options)
+        
         system.create_booking(bid, cid, pid)
     elif choice == '2':
         bid = input("Enter Booking ID to cancel: ")
@@ -124,7 +162,10 @@ def hotel_menu(system):
         hid = input("Enter Hotel ID: ")
         name = input("Enter Hotel Name: ")
         loc = input("Enter Location: ")
-        rtype = input("Enter Room Type: ")
+        
+        room_types = ["Single", "Double", "Deluxe", "Suite"]
+        rtype = get_selection("Select Room Type:", room_types)
+        
         price = float(input("Enter Room Price: "))
         rooms = int(input("Enter Available Rooms: "))
         system.add_hotel(hid, name, loc, rtype, price, rooms)
@@ -143,7 +184,10 @@ def transport_menu(system):
     choice = input("Enter choice: ")
     if choice == '1':
         tid = input("Enter Transport ID: ")
-        ttype = input("Enter Transport Type (Bus/Flight/Train/Cab): ")
+        
+        transport_types = ["Bus", "Flight", "Train", "Cab"]
+        ttype = get_selection("Select Transport Type:", transport_types)
+        
         src = input("Enter Source: ")
         dest = input("Enter Destination: ")
         fare = float(input("Enter Fare: "))
@@ -173,8 +217,16 @@ def payment_menu(system):
     if choice == '1':
         payid = input("Enter Payment ID: ")
         amount = float(input("Enter Amount: "))
-        mode = input("Enter Payment Mode (Cash/Card/UPI): ")
-        bid = input("Enter Booking ID: ")
+        
+        modes = ["Cash", "Card", "UPI"]
+        mode = get_selection("Select Payment Mode:", modes)
+        
+        booking_options = list(system.bookings.keys())
+        if not booking_options:
+            print("No bookings found. Please create a booking first.")
+            return
+        bid = get_selection("Select Booking ID:", booking_options)
+        
         system.process_payment(payid, amount, mode, bid)
 
 def schedule_menu(system):

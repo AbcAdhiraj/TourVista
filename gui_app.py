@@ -137,27 +137,43 @@ class App(ctk.CTk):
         ctk.CTkLabel(form_frame, text="Create New Package", font=ctk.CTkFont(weight="bold")).grid(row=0, column=0, columnspan=2, pady=5)
         
         entries = {}
-        fields = [("Package ID", "pid"), ("Package Name", "name"), ("Destination", "dest"), ("Duration", "dur"), ("Price", "price"), ("Hotel ID", "hid"), ("Transport ID", "tid")]
+        fields = [("Package ID", "pid"), ("Package Name", "name"), ("Destination", "dest"), ("Duration", "dur"), ("Price", "price")]
         for i, (label, key) in enumerate(fields):
             ctk.CTkLabel(form_frame, text=label).grid(row=i+1, column=0, padx=10, pady=5, sticky="e")
             entry = ctk.CTkEntry(form_frame, width=200)
             entry.grid(row=i+1, column=1, padx=10, pady=5)
             entries[key] = entry
 
+        # Hotel ID Dropdown
+        ctk.CTkLabel(form_frame, text="Hotel ID").grid(row=len(fields)+1, column=0, padx=10, pady=5, sticky="e")
+        hotel_ids = ["None"] + list(self.system.hotels.keys())
+        hotel_menu = ctk.CTkOptionMenu(form_frame, values=hotel_ids, width=200)
+        hotel_menu.grid(row=len(fields)+1, column=1, padx=10, pady=5)
+        entries['hid'] = hotel_menu
+
+        # Transport ID Dropdown
+        ctk.CTkLabel(form_frame, text="Transport ID").grid(row=len(fields)+2, column=0, padx=10, pady=5, sticky="e")
+        transport_ids = ["None"] + list(self.system.transports.keys())
+        transport_menu = ctk.CTkOptionMenu(form_frame, values=transport_ids, width=200)
+        transport_menu.grid(row=len(fields)+2, column=1, padx=10, pady=5)
+        entries['tid'] = transport_menu
+
         def create():
             try:
+                hid = entries['hid'].get()
+                tid = entries['tid'].get()
                 self.system.create_package(
                     entries['pid'].get(), entries['name'].get(), entries['dest'].get(),
                     int(entries['dur'].get()), float(entries['price'].get()),
-                    hotel_id=entries['hid'].get() if entries['hid'].get() else None,
-                    transport_id=entries['tid'].get() if entries['tid'].get() else None
+                    hotel_id=hid if hid != "None" else None,
+                    transport_id=tid if tid != "None" else None
                 )
                 messagebox.showinfo("Success", "Package created!")
                 self.show_packages()
             except Exception as e:
                 messagebox.showerror("Error", str(e))
 
-        ctk.CTkButton(form_frame, text="Create Package", command=create, fg_color="green").grid(row=len(fields)+1, column=0, columnspan=2, pady=10)
+        ctk.CTkButton(form_frame, text="Create Package", command=create, fg_color="green").grid(row=len(fields)+3, column=0, columnspan=2, pady=10)
 
         # List Frame
         list_frame = ctk.CTkFrame(self.content_area)
@@ -180,12 +196,26 @@ class App(ctk.CTk):
         ctk.CTkLabel(form_frame, text="Create New Booking", font=ctk.CTkFont(weight="bold")).grid(row=0, column=0, columnspan=2, pady=5)
         
         entries = {}
-        fields = [("Booking ID", "bid"), ("Customer ID", "cid"), ("Package ID", "pid")]
+        fields = [("Booking ID", "bid")]
         for i, (label, key) in enumerate(fields):
             ctk.CTkLabel(form_frame, text=label).grid(row=i+1, column=0, padx=10, pady=5, sticky="e")
             entry = ctk.CTkEntry(form_frame, width=200)
             entry.grid(row=i+1, column=1, padx=10, pady=5)
             entries[key] = entry
+
+        # Customer ID Dropdown
+        ctk.CTkLabel(form_frame, text="Customer ID").grid(row=len(fields)+1, column=0, padx=10, pady=5, sticky="e")
+        customer_ids = list(self.system.customers.keys())
+        customer_menu = ctk.CTkOptionMenu(form_frame, values=customer_ids, width=200)
+        customer_menu.grid(row=len(fields)+1, column=1, padx=10, pady=5)
+        entries['cid'] = customer_menu
+
+        # Package ID Dropdown
+        ctk.CTkLabel(form_frame, text="Package ID").grid(row=len(fields)+2, column=0, padx=10, pady=5, sticky="e")
+        package_ids = list(self.system.packages.keys())
+        package_menu = ctk.CTkOptionMenu(form_frame, values=package_ids, width=200)
+        package_menu.grid(row=len(fields)+2, column=1, padx=10, pady=5)
+        entries['pid'] = package_menu
 
         def create():
             try:
@@ -195,7 +225,7 @@ class App(ctk.CTk):
             except Exception as e:
                 messagebox.showerror("Error", str(e))
 
-        ctk.CTkButton(form_frame, text="Create Booking", command=create, fg_color="green").grid(row=len(fields)+1, column=0, columnspan=2, pady=10)
+        ctk.CTkButton(form_frame, text="Create Booking", command=create, fg_color="green").grid(row=len(fields)+3, column=0, columnspan=2, pady=10)
 
         # List Frame
         list_frame = ctk.CTkFrame(self.content_area)
@@ -203,6 +233,8 @@ class App(ctk.CTk):
         ctk.CTkLabel(list_frame, text="Current Bookings", font=ctk.CTkFont(weight="bold")).pack(pady=5)
 
         for bid, b in self.system.bookings.items():
+            if b.booking_status == "Cancelled":
+                continue
             row_frame = ctk.CTkFrame(list_frame)
             row_frame.pack(fill="x", padx=5, pady=2)
             ctk.CTkLabel(row_frame, text=f"{b.booking_id} | {b.customer.name} | {b.package.package_name} | {b.booking_status}").pack(side="left", padx=10)
@@ -254,12 +286,30 @@ class App(ctk.CTk):
         ctk.CTkLabel(form_frame, text="Add New Hotel", font=ctk.CTkFont(weight="bold")).grid(row=0, column=0, columnspan=2, pady=5)
         
         entries = {}
-        fields = [("Hotel ID", "hid"), ("Name", "name"), ("Location", "loc"), ("Room Type", "rtype"), ("Price", "price"), ("Available Rooms", "rooms")]
+        fields = [("Hotel ID", "hid"), ("Name", "name"), ("Location", "loc")]
         for i, (label, key) in enumerate(fields):
             ctk.CTkLabel(form_frame, text=label).grid(row=i+1, column=0, padx=10, pady=5, sticky="e")
             entry = ctk.CTkEntry(form_frame, width=200)
             entry.grid(row=i+1, column=1, padx=10, pady=5)
             entries[key] = entry
+
+        # Room Type Dropdown
+        ctk.CTkLabel(form_frame, text="Room Type").grid(row=len(fields)+1, column=0, padx=10, pady=5, sticky="e")
+        room_types = ["Single", "Double", "Deluxe", "Suite"]
+        room_menu = ctk.CTkOptionMenu(form_frame, values=room_types, width=200)
+        room_menu.grid(row=len(fields)+1, column=1, padx=10, pady=5)
+        entries['rtype'] = room_menu
+
+        # Price and Available Rooms
+        ctk.CTkLabel(form_frame, text="Price").grid(row=len(fields)+2, column=0, padx=10, pady=5, sticky="e")
+        price_entry = ctk.CTkEntry(form_frame, width=200)
+        price_entry.grid(row=len(fields)+2, column=1, padx=10, pady=5)
+        entries['price'] = price_entry
+
+        ctk.CTkLabel(form_frame, text="Available Rooms").grid(row=len(fields)+3, column=0, padx=10, pady=5, sticky="e")
+        rooms_entry = ctk.CTkEntry(form_frame, width=200)
+        rooms_entry.grid(row=len(fields)+3, column=1, padx=10, pady=5)
+        entries['rooms'] = rooms_entry
 
         def add():
             try:
@@ -272,7 +322,7 @@ class App(ctk.CTk):
             except Exception as e:
                 messagebox.showerror("Error", str(e))
 
-        ctk.CTkButton(form_frame, text="Add Hotel", command=add, fg_color="green").grid(row=len(fields)+1, column=0, columnspan=2, pady=10)
+        ctk.CTkButton(form_frame, text="Add Hotel", command=add, fg_color="green").grid(row=len(fields)+4, column=0, columnspan=2, pady=10)
 
         # List Frame
         list_frame = ctk.CTkFrame(self.content_area)
@@ -297,12 +347,40 @@ class App(ctk.CTk):
         # Add Tab
         add_frame = tabview.tab("Add Transport")
         entries = {}
-        fields = [("Transport ID", "tid"), ("Type", "type"), ("Source", "src"), ("Destination", "dest"), ("Fare", "fare"), ("Seats", "seats")]
+        fields = [("Transport ID", "tid")]
         for i, (label, key) in enumerate(fields):
             ctk.CTkLabel(add_frame, text=label).grid(row=i, column=0, padx=10, pady=5, sticky="e")
             entry = ctk.CTkEntry(add_frame, width=200)
             entry.grid(row=i, column=1, padx=10, pady=5)
             entries[key] = entry
+
+        # Type Dropdown
+        ctk.CTkLabel(add_frame, text="Type").grid(row=len(fields), column=0, padx=10, pady=5, sticky="e")
+        transport_types = ["Bus", "Flight", "Train", "Cab"]
+        type_menu = ctk.CTkOptionMenu(add_frame, values=transport_types, width=200)
+        type_menu.grid(row=len(fields), column=1, padx=10, pady=5)
+        entries['type'] = type_menu
+
+        # Source, Destination, Fare, Seats
+        ctk.CTkLabel(add_frame, text="Source").grid(row=len(fields)+1, column=0, padx=10, pady=5, sticky="e")
+        src_entry = ctk.CTkEntry(add_frame, width=200)
+        src_entry.grid(row=len(fields)+1, column=1, padx=10, pady=5)
+        entries['src'] = src_entry
+
+        ctk.CTkLabel(add_frame, text="Destination").grid(row=len(fields)+2, column=0, padx=10, pady=5, sticky="e")
+        dest_entry = ctk.CTkEntry(add_frame, width=200)
+        dest_entry.grid(row=len(fields)+2, column=1, padx=10, pady=5)
+        entries['dest'] = dest_entry
+
+        ctk.CTkLabel(add_frame, text="Fare").grid(row=len(fields)+3, column=0, padx=10, pady=5, sticky="e")
+        fare_entry = ctk.CTkEntry(add_frame, width=200)
+        fare_entry.grid(row=len(fields)+3, column=1, padx=10, pady=5)
+        entries['fare'] = fare_entry
+
+        ctk.CTkLabel(add_frame, text="Seats").grid(row=len(fields)+4, column=0, padx=10, pady=5, sticky="e")
+        seats_entry = ctk.CTkEntry(add_frame, width=200)
+        seats_entry.grid(row=len(fields)+4, column=1, padx=10, pady=5)
+        entries['seats'] = seats_entry
 
         def add():
             try:
@@ -314,7 +392,7 @@ class App(ctk.CTk):
                 self.show_transports()
             except Exception as e:
                 messagebox.showerror("Error", str(e))
-        ctk.CTkButton(add_frame, text="Add Transport", command=add, fg_color="green").grid(row=len(fields), column=0, columnspan=2, pady=10)
+        ctk.CTkButton(add_frame, text="Add Transport", command=add, fg_color="green").grid(row=len(fields)+5, column=0, columnspan=2, pady=10)
 
         # Search Tab
         search_frame = tabview.tab("Search & View")
@@ -368,12 +446,26 @@ class App(ctk.CTk):
         ctk.CTkLabel(form_frame, text="Process Payment", font=ctk.CTkFont(weight="bold")).grid(row=0, column=0, columnspan=2, pady=5)
         
         entries = {}
-        fields = [("Payment ID", "pid"), ("Amount", "amt"), ("Mode", "mode"), ("Booking ID", "bid")]
+        fields = [("Payment ID", "pid"), ("Amount", "amt")]
         for i, (label, key) in enumerate(fields):
             ctk.CTkLabel(form_frame, text=label).grid(row=i+1, column=0, padx=10, pady=5, sticky="e")
             entry = ctk.CTkEntry(form_frame, width=200)
             entry.grid(row=i+1, column=1, padx=10, pady=5)
             entries[key] = entry
+
+        # Mode Dropdown
+        ctk.CTkLabel(form_frame, text="Mode").grid(row=len(fields)+1, column=0, padx=10, pady=5, sticky="e")
+        modes = ["Credit Card", "Cash", "UPI"]
+        mode_menu = ctk.CTkOptionMenu(form_frame, values=modes, width=200)
+        mode_menu.grid(row=len(fields)+1, column=1, padx=10, pady=5)
+        entries['mode'] = mode_menu
+
+        # Booking ID Dropdown
+        ctk.CTkLabel(form_frame, text="Booking ID").grid(row=len(fields)+2, column=0, padx=10, pady=5, sticky="e")
+        booking_ids = list(self.system.bookings.keys())
+        booking_menu = ctk.CTkOptionMenu(form_frame, values=booking_ids, width=200)
+        booking_menu.grid(row=len(fields)+2, column=1, padx=10, pady=5)
+        entries['bid'] = booking_menu
 
         def process():
             try:
@@ -384,7 +476,7 @@ class App(ctk.CTk):
             except Exception as e:
                 messagebox.showerror("Error", str(e))
 
-        ctk.CTkButton(form_frame, text="Process Payment", command=process, fg_color="green").grid(row=len(fields)+1, column=0, columnspan=2, pady=10)
+        ctk.CTkButton(form_frame, text="Process Payment", command=process, fg_color="green").grid(row=len(fields)+3, column=0, columnspan=2, pady=10)
 
         # List Frame
         list_frame = ctk.CTkFrame(self.content_area)
